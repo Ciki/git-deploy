@@ -152,12 +152,16 @@ abstract class Deploy
 	 *
 	 * @param 	string 	$message 	The message to write
 	 * @param 	string 	$type 		The type of log message (e.g. INFO, DEBUG, ERROR, etc.)
+	 * @param 	string 	$filename	The log file basename
 	 */
-	protected function log($message, $type = 'INFO')
+	protected function log($message, $type = 'INFO', $filename = NULL)
 	{
-		if (self::$_log_name) {
+		if ($filename === NULL) {
+			$filename = self::$_log_name;
+		}
+		if ($filename) {
 			// Set the name of the log file
-			$filename = self::$_log_path . '/' . rtrim(self::$_log_name, '/');
+			$filename = self::$_log_path . '/' . rtrim($filename, '/');
 
 			if (!file_exists($filename)) {
 				// Create the log file
@@ -200,9 +204,8 @@ abstract class Deploy
 			echo( '[SHA: ' . $this->_commit . '] Deployment of ' . $this->_name . ' from branch ' . $this->_branch . ' successful' );
 
 			// debug only
-			var_dump($output);
-//			file_put_contents(ROOT_DIR . '/post.log', $_POST);
-//			file_put_contents(ROOT_DIR . '/output.log', $output);
+			$this->log($_POST, 'INFO', 'post.log');
+			$this->log($output, 'INFO', 'output.log');
 		} catch (Exception $e) {
 			$this->log($e, 'ERROR');
 		}
