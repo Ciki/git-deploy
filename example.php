@@ -1,6 +1,4 @@
 <?php
-// tell the script this is an active end point.
-define('ACTIVE_DEPLOY_ENDPOINT', true);
 // set the deploy log directory
 define('DEPLOY_LOG_DIR', dirname(__FILE__));
 

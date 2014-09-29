@@ -1,8 +1,4 @@
 <?php
-// Causes the script to die if we are not using an actual endpoint to access it.
-if (!defined('ACTIVE_DEPLOY_ENDPOINT') || true !== ACTIVE_DEPLOY_ENDPOINT) {
-	die('<h1>No Access</h1><p>An endpoint needs to be defined to use this file.</p>');
-}
 
 /**
  * The main Deploy class. This is set up for GIT repos.
