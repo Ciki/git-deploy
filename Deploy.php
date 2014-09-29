@@ -36,7 +36,7 @@ abstract class Deploy
 	/**
 	 * The path to where we wish to store our log file.
 	 */
-	private static $_log_path = DEPLOY_LOG_DIR;
+	private static $_log_path = __DIR__;
 
 	/**
 	 * The timestamp format used for logging.

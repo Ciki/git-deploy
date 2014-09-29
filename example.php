@@ -1,7 +1,4 @@
 <?php
-// set the deploy log directory
-define('DEPLOY_LOG_DIR', dirname(__FILE__));
-
 
 // Config
 $repos = array(
