@@ -52,13 +52,9 @@ abstract class Deploy
 	 * @param array $repo The repo information and the path information for deployment
 	 * @return bool True on success, false on failure.
 	 */
-	public static function register_repo($name, $repo)
+	public static function register_repo($name, array $repo)
 	{
 		if (!is_string($name)) {
-			return false;
-		}
-
-		if (!is_array($repo)) {
 			return false;
 		}
 
