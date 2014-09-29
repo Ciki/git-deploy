@@ -204,8 +204,8 @@ abstract class Deploy
 			echo( '[SHA: ' . $this->_commit . '] Deployment of ' . $this->_name . ' from branch ' . $this->_branch . ' successful' );
 
 			// debug only
-			$this->log($_POST, 'INFO', 'post.log');
-			$this->log($output, 'INFO', 'output.log');
+			$this->log(print_r($_POST, true), 'INFO', 'post.log');
+			$this->log(print_r($output, true), 'INFO', 'output.log');
 		} catch (Exception $e) {
 			$this->log($e, 'ERROR');
 		}
