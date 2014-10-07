@@ -1,43 +1,41 @@
 <?php
 // Config
-$repos = array(
-	'Digitilt' => array(
-		'branch' => 'labs',
-		'remote' => 'origin',
-		'path' => __DIR__ . '/../../../',
-//		'post_deploy' => 'callback',
-	),
-);
+$repos = [[
+	'name' => 'Digitilt',
+	'branch' => 'labs',
+	'remote' => 'origin',
+	'path' => ROOT_DIR,
+	'service' => Deployer::SERVICE_GITHUB,
+	'onDeployStart' => function() {
+		switchMaintenanceMode(TRUE);
+	},
+	'onDeployed' => function() {
+		cleanCache();
+		switchMaintenanceMode(FALSE);
+	},
+	]];
 
 
-// Registers all of our repos with the Deploy class
-require __DIR__ . '/Deploy.php';
-foreach ($repos as $name => $repo) {
-	Deploy::register_repo($name, $repo);
-}
-
-
-// Make sure we have a payload, stop if we do not.
 $payload = getPayload();
 if (!$payload) {
-	die('<h1>No payload present</h1>');
+	die('No payload present');
 }
 
-
-// https://developer.github.com/webhooks/#delivery-headers
-if (strncmp($_SERVER['User-Agent'], 'GitHub-Hookshot/', 16)) {
-	require __DIR__ . '/GithubDeploy.php';
-	$deploy = new GitHubDeploy($payload);
-// todo: how to detect Bitbucket hook service?
-} elseif (false) {
-	require __DIR__ . '/BitBucketDeploy.php';
-	$deploy = new BitBucketDeploy($payload);
-} else {
+$service = getService();
+if (!$service) {
 	die('Unknown hook service!');
 }
 
-
-$deploy->execute();
+try {
+	$logDir = ROOT_DIR . '/log/deploy';
+	@mkdir($logDir, 0777, true);
+	$logger = new Logger($logDir, NULL, true);
+	$deployer = new Deployer($repos, $logger);
+	$deployer->tryDeploy($payload, $service);
+} catch (\RuntimeException $e) {
+	$logger->log($e);
+	die('Deployment error. More info in log..');
+}
 
 /**
  * @return string|NULL JSON encoded payload
@@ -50,5 +48,23 @@ function getPayload()
 		$json = file_get_contents('php://input');
 	}
 	return $json ? : NULL;
+}
+
+
+/**
+ * @return string|NULL One of Deployer::SERVICE_* constants
+ */
+function getService()
+{
+	$service = NULL;
+	$headers = apache_request_headers();
+	// https://developer.github.com/webhooks/#delivery-headers
+	if (isset($headers['User-Agent']) && strncmp($headers['User-Agent'], 'GitHub-Hookshot/', 16) === 0) {
+		$service = Deployer::SERVICE_GITHUB;
+		// todo: how to detect Bitbucket hook service?
+	} elseif (false) {
+		$service = Deployer::SERVICE_BITBUCKET;
+	}
+	return $service;
 }
 
